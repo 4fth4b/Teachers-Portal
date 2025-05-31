@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .register-container {
+        background: #181818;
+        border-radius: 16px;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+        max-width: 400px;
+        margin: 48px auto;
+        padding: 32px 28px;
+    }
+    h2 {
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 32px;
+    }
+    .form-label {
+        color: #fff;
+        font-weight: 500;
+    }
+    .form-control {
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 8px;
+        transition: border-color 0.2s;
+    }
+    .form-control:focus {
+        border-color: #fff;
+        background: #222;
+        color: #fff;
+        box-shadow: none;
+    }
+    .is-invalid {
+        border-color: #e74c3c;
+    }
+    .invalid-feedback {
+        color: #e74c3c;
+    }
+    .btn-primary {
+        background: #fff;
+        color: #111;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        width: 100%;
+        padding: 10px 0;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-primary:hover {
+        background: #111;
+        color: #fff;
+        border: 1px solid #fff;
+    }
+    a {
+        color: #fff;
+        text-decoration: underline;
+        transition: color 0.2s;
+    }
+    a:hover {
+        color: #bbb;
+    }
+    .mt-3 {
+        margin-top: 1rem !important;
+        text-align: center;
+    }
+</style>
+
+<div class="register-container">
+    <h2>Register</h2>
+    <form method="POST" id="registerForm" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Enter your name") }}
+            {% for error in form.name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email") }}
+            {% for error in form.email.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter password") }}
+            {% for error in form.password.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.confirm_password.label(class="form-label") }}
+            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm password") }}
+            {% for error in form.confirm_password.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+
+    <p class="mt-3">Already have an account? <a href="{{ url_for('main.login') }}">Login here</a>.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: #111 !important;
+        color: #fff !important;
+    }
+    .p-4.bg-light {
+        background: #181818 !important;
+        color: #fff !important;
+        border-radius: 1rem;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.7);
+    }
+    .table {
+        background: #222;
+        color: #fff;
+    }
+    .table th, .table td {
+        background: #181818 !important;
+        color: #fff !important;
+        border-color: #333 !important;
+    }
+    .table-dark th {
+        background: #000 !important;
+        color: #fff !important;
+    }
+    .btn-primary, .btn-primary:focus, .btn-primary:active {
+        background: #fff !important;
+        color: #111 !important;
+        border: none;
+    }
+    .btn-warning {
+        background: #fff !important;
+        color: #111 !important;
+        border: none;
+    }
+    .btn-danger {
+        background: #fff !important;
+        color: #111 !important;
+        border: none;
+    }
+    .btn-secondary {
+        background: #333 !important;
+        color: #fff !important;
+        border: none;
+    }
+    .modal-content {
+        background: #181818;
+        color: #fff;
+        border-radius: 1rem;
+    }
+    .form-control {
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+    }
+    .form-label {
+        color: #fff;
+    }
+    .badge.bg-success {
+        background: #fff !important;
+        color: #111 !important;
+    }
+    .alert-info {
+        background: #222 !important;
+        color: #fff !important;
+        border: 1px solid #333 !important;
+    }
+    .fw-bold, .fw-semibold {
+        font-weight: 600 !important;
+    }
+    .text-primary {
+        color: #fff !important;
+        text-shadow: 0 0 8px #fff, 0 0 2px #fff;
+    }
+    .lead.text-success {
+        color: #fff !important;
+        opacity: 0.8;
+    }
+    .modal-header, .modal-footer {
+        border-color: #333 !important;
+    }
+    .btn-close {
+        filter: invert(1);
+    }
+    .table-striped>tbody>tr:nth-of-type(odd)>* {
+        --bs-table-accent-bg: #232323;
+        color: #fff;
+    }
+    .table-striped>tbody>tr:nth-of-type(even)>* {
+        --bs-table-accent-bg: #181818;
+        color: #fff;
+    }
+</style>
+<div class="p-4 bg-light rounded shadow-sm">
+    <h2 class="mb-4 text-center fw-bold" style="color: #fff;">
+        Welcome to your dashboard, <span class="text-primary">{{ current_user.name }}</span>!
+    </h2>
+    <p class="lead text-success text-center mb-4">
+        Empower your teaching journey: Manage your students and their achievements all in one place!
+    </p>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h3 class="mb-0">Your Students:</h3>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="bi bi-plus-circle me-1"></i> Add Student
+        </button>
+    </div>
+    {% if students %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle shadow-sm" id="studentsTable">
+            <thead class="table-dark">
+                <tr class="text-center">
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr data-student-id="{{ student.id }}" class="text-center">
+                    <td class="student-name align-middle fw-semibold">{{ student.name }}</td>
+                    <td class="student-subject align-middle">{{ student.subject }}</td>
+                    <td class="student-marks align-middle">
+                        <span class="badge bg-success fs-6">{{ student.marks }}</span>
+                    </td>
+                    <td class="align-middle">
+                        <button class="btn btn-sm btn-warning btn-edit me-2" data-bs-toggle="modal" data-bs-target="#editStudentModal">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-delete">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center mt-4" role="alert">
+        <i class="bi bi-info-circle"></i> No students found.
+    </div>
+    {% endif %}
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="addStudentForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="studentName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="studentName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="studentSubject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentMarks" class="form-label">Marks</label>
+                            <input type="number" class="form-control" id="studentMarks" name="marks" required min="0" max="100">
+                        </div>
+                        <div id="formError" class="text-danger"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add Student</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editStudentForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editStudentModalLabel">Edit Student</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editStudentId" name="id">
+                        <div class="mb-3">
+                            <label for="editStudentName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editStudentName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStudentSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="editStudentSubject" name="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStudentMarks" class="form-label">Marks</label>
+                            <input type="number" class="form-control" id="editStudentMarks" name="marks" required min="0" max="100">
+                        </div>
+                        <div id="editFormError" class="text-danger"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add Student
+        document.getElementById('addStudentForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('studentName').value.trim();
+            const subject = document.getElementById('studentSubject').value.trim();
+            const marks = document.getElementById('studentMarks').value;
+
+            const errorDiv = document.getElementById('formError');
+            errorDiv.textContent = '';
+
+            if (!name || !subject || !marks) {
+                errorDiv.textContent = 'Please fill out all fields.';
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ url_for("main.add_student") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, subject, marks })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Close modal
+                    const modalEl = document.getElementById('addStudentModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+
+                    // Reset form
+                    this.reset();
+
+                    // Find the existing row with this student id (if any)
+                    const existingRow = document.querySelector(`tr[data-student-id="${data.id}"]`);
+
+                    if (existingRow) {
+                        // Update existing row cells with new data
+                        existingRow.querySelector('.student-name').textContent = data.name;
+                        existingRow.querySelector('.student-subject').textContent = data.subject;
+                        existingRow.querySelector('.student-marks').innerHTML = `<span class="badge bg-success fs-6">${data.marks}</span>`;
+                    } else {
+                        // No existing row — add new student row to the table
+
+                        let tbody = document.querySelector('table tbody');
+
+                        // If no table exists (e.g. "No students found" was showing), create table:
+                        if (!tbody) {
+                            const container = document.querySelector('.p-4');
+                            container.innerHTML += `
+                <table class="table table-striped table-bordered mt-3" id="studentsTable">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                `;
+                            tbody = document.querySelector('table tbody');
+                        }
+
+            const newRow = document.createElement('tr');
+            newRow.setAttribute('data-student-id', data.id);
+            newRow.className = "text-center";
+            newRow.innerHTML = `
+                <td class="student-name align-middle fw-semibold">${data.name}</td>
+                <td class="student-subject align-middle">${data.subject}</td>
+                <td class="student-marks align-middle">
+                    <span class="badge bg-success fs-6">${data.marks}</span>
+                </td>
+                <td class="align-middle">
+                    <button class="btn btn-sm btn-warning btn-edit me-2" data-bs-toggle="modal" data-bs-target="#editStudentModal">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger btn-delete">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+                    }
+                } else {
+                    errorDiv.textContent = data.error || 'Something went wrong.';
+                }
+
+            } catch (err) {
+                errorDiv.textContent = 'Error submitting form.';
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('btn-edit')) {
+                const tr = event.target.closest('tr');
+                const id = tr.getAttribute('data-student-id');
+                const name = tr.querySelector('.student-name').textContent;
+                const subject = tr.querySelector('.student-subject').textContent;
+                // Get marks from the badge span if present
+                const marksSpan = tr.querySelector('.student-marks .badge');
+                const marks = marksSpan ? marksSpan.textContent : tr.querySelector('.student-marks').textContent;
+
+                document.getElementById('editStudentId').value = id;
+                document.getElementById('editStudentName').value = name;
+                document.getElementById('editStudentSubject').value = subject;
+                document.getElementById('editStudentMarks').value = marks;
+
+                document.getElementById('editFormError').textContent = '';
+            }
+        });
+
+        document.getElementById('editStudentForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('editStudentId').value;
+            const name = document.getElementById('editStudentName').value.trim();
+            const subject = document.getElementById('editStudentSubject').value.trim();
+            const marks = document.getElementById('editStudentMarks').value;
+
+            const errorDiv = document.getElementById('editFormError');
+            errorDiv.textContent = '';
+
+            if (!name || !subject || !marks) {
+                errorDiv.textContent = 'Please fill out all fields.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/edit_student/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, subject, marks })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const row = document.querySelector(`tr[data-student-id="${id}"]`);
+                    if (row) {
+                        row.querySelector('.student-name').textContent = data.name;
+                        row.querySelector('.student-subject').textContent = data.subject;
+                        // Set marks as badge so highlight remains
+                        row.querySelector('.student-marks').innerHTML = `<span class="badge bg-success fs-6">${data.marks}</span>`;
+                    }
+
+                    const modalEl = document.getElementById('editStudentModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                } else {
+                    errorDiv.textContent = data.error || 'Something went wrong.';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error submitting form.';
+            }
+        });
+
+        document.addEventListener('click', async function (event) {
+            if (event.target.classList.contains('btn-delete')) {
+                if (!confirm('Are you sure you want to delete this student?')) return;
+
+                const tr = event.target.closest('tr');
+                const id = tr ? tr.getAttribute('data-student-id') : null;
+
+                if (!id) {
+                    alert('Student ID is missing or invalid.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/delete_student/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (response.ok) {
+                        tr.remove();
+
+                        const tbody = document.querySelector('#studentsTable tbody');
+                        if (tbody.children.length === 0) {
+                            document.querySelector('#studentsTable').remove();
+                            const container = document.querySelector('.p-4');
+                            container.insertAdjacentHTML('beforeend', '<p>No students found.</p>');
+                        }
+                    } else {
+                        alert('Failed to delete student.');
+                    }
+                } catch (err) {
+                    alert('Error deleting student.');
+                }
+            }
+        });
+
+    </script>
+    {% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: #111;
+        min-height: 100vh;
+        color: #fff;
+    }
+    .login-container {
+        max-width: 400px;
+        margin: 60px auto;
+        background: #181818;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        padding: 40px 32px 32px 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    .login-title {
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 1px;
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 2rem;
+    }
+    .form-label {
+        color: #fff;
+        font-weight: 500;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #333;
+        background: #222;
+        color: #fff;
+        transition: border-color 0.2s;
+        box-shadow: none;
+    }
+    .form-control:focus {
+        border-color: #fff;
+        box-shadow: 0 0 0 2px #fff2;
+        background: #222;
+        color: #fff;
+    }
+    .btn-success {
+        background: #fff;
+        color: #111;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 0;
+        width: 100%;
+        transition: background 0.2s, color 0.2s, transform 0.1s;
+        box-shadow: 0 2px 8px #0004;
+    }
+    .btn-success:hover {
+        background: #111;
+        color: #fff;
+        border: 1px solid #fff;
+        transform: translateY(-2px) scale(1.03);
+    }
+    .register-link {
+        text-align: center;
+        margin-top: 18px;
+        color: #bbb;
+    }
+    .register-link a {
+        color: #fff;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .register-link a:hover {
+        color: #bbb;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-title">Welcome Back!</div>
+    <form method="POST" id="loginForm" novalidate onsubmit="return validateForm()">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control", placeholder="Enter email") }}
+        </div>
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control", placeholder="Enter password") }}
+        </div>
+        {{ form.submit(class="btn btn-success") }}
+    </form>
+    <div class="register-link">
+        Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a>.
+    </div>
+</div>
+
+<script>
+    function validateForm() {
+        const email = document.querySelector('[name="email"]').value.trim();
+        const password = document.querySelector('[name="password"]').value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!email || !password) {
+            alert("Email and Password fields cannot be empty.");
+            return false;
+        }
+
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}
